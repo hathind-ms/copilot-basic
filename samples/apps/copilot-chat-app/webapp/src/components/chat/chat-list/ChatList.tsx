@@ -1,12 +1,11 @@
 // Copyright (c) Microsoft. All rights reserved.
 
-import { Label, makeStyles, shorthands, Text } from '@fluentui/react-components';
+import { makeStyles, shorthands, Text } from '@fluentui/react-components';
 import { Tree, TreeItem } from '@fluentui/react-components/unstable';
 import { FC } from 'react';
 import { useAppSelector } from '../../../redux/app/hooks';
 import { RootState } from '../../../redux/app/store';
 import { ChatListItem } from './ChatListItem';
-import { NewBotMenu } from './NewBotMenu';
 
 const useClasses = makeStyles({
     root: {
@@ -46,9 +45,7 @@ export const ChatList: FC = () => {
                     <Text weight="bold" size={500}>
                         Conversations
                     </Text>
-                    <NewBotMenu />
                 </div>
-                <Label className={classes.label}>Your Bot</Label>
                 <Tree aria-label={'chat list'}>
                     {Object.keys(conversations).map((id) => {
                         const convo = conversations[id];

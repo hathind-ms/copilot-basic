@@ -10,12 +10,10 @@ import {
     updateConversation,
 } from '../redux/features/conversations/conversationsSlice';
 import { AlertType } from './models/AlertType';
-import { Bot } from './models/Bot';
 import { AuthorRoles } from './models/ChatMessage';
 import { IChatSession } from './models/ChatSession';
 import { ChatUser } from './models/ChatUser';
 import { useSemanticKernel } from './semantic-kernel/useSemanticKernel';
-import { BotService } from './services/BotService';
 import { ChatService } from './services/ChatService';
 
 export const useChat = () => {
@@ -23,7 +21,6 @@ export const useChat = () => {
     const sk = useSemanticKernel(process.env.REACT_APP_BACKEND_URI as string);
     const { botProfilePictureIndex } = useAppSelector((state: RootState) => state.conversations);
 
-    const botService = new BotService(process.env.REACT_APP_BACKEND_URI as string);
     const chatService = new ChatService(process.env.REACT_APP_BACKEND_URI as string);
 
     const botProfilePictures: string[] = [
@@ -126,31 +123,10 @@ export const useChat = () => {
         }
     };
 
-    const downloadBot = async (chatId: string) => {
-        try {
-            return botService.downloadAsync(chatId, Constants.GuestUser.id);
-        } catch (e: any) {
-            const errorMessage = `Unable to download the bot. Details: ${e.message ?? e}`;
-            dispatch(addAlert({ message: errorMessage, type: AlertType.Error }));
-        }
-    };
-
-    const uploadBot = async (bot: Bot) => {
-        botService
-            .uploadAsync(bot, Constants.GuestUser.id)
-            .then(() => loadChats())
-            .catch((e: any) => {
-                const errorMessage = `Unable to upload the bot. Details: ${e.message ?? e}`;
-                dispatch(addAlert({ message: errorMessage, type: AlertType.Error }));
-            });
-    };
-
     return {
         getAudienceMemberForId,
         createChat,
         loadChats,
         getResponse,
-        downloadBot,
-        uploadBot,
     };
 };

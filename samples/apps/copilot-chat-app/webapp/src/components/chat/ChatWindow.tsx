@@ -20,7 +20,6 @@ import { RootState } from '../../redux/app/store';
 import { addAlert } from '../../redux/features/app/appSlice';
 import { editConversationTitle } from '../../redux/features/conversations/conversationsSlice';
 import { ChatRoom } from './ChatRoom';
-import { ShareBotMenu } from './ShareBotMenu';
 
 const useClasses = makeStyles({
     root: {
@@ -139,9 +138,6 @@ export const ChatWindow: React.FC = () => {
                                 disabled={title === undefined || !title}
                             />
                         </Tooltip>
-                    </div>
-                    <div className={classes.controls}>
-                        <ShareBotMenu chatId={selectedId} chatTitle={title || ''} />
                     </div>
                 </div>
             </div>
