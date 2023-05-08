@@ -1,4 +1,3 @@
-import { useMsal } from '@azure/msal-react';
 import {
     Body1,
     Body1Strong,
@@ -17,7 +16,6 @@ import {
 } from '@fluentui/react-components';
 import { Dismiss20Regular } from '@fluentui/react-icons';
 import { FormEvent, useState } from 'react';
-import { TokenHelper } from '../../libs/auth/TokenHelper';
 import { useAppDispatch } from '../../redux/app/hooks';
 import { AdditionalApiProperties, PluginAuthRequirements, Plugins } from '../../redux/features/plugins/PluginsState';
 import { connectPlugin } from '../../redux/features/plugins/pluginsSlice';
@@ -68,8 +66,6 @@ export const PluginConnector: React.FC<PluginConnectorProps> = ({
     const usernameRequired = authRequirements.username;
     const passwordRequired = authRequirements.password;
     const accessTokenRequired = authRequirements.personalAccessToken;
-    const msalRequired = authRequirements.Msal;
-    const oauthRequired = authRequirements.OAuth;
 
     const [username, setUsername] = useState('');
     const [password, setPassword] = useState('');
@@ -80,34 +76,20 @@ export const PluginConnector: React.FC<PluginConnectorProps> = ({
     const [errorMessage, setErrorMessage] = useState<string | undefined>();
 
     const dispatch = useAppDispatch();
-    const { instance, inProgress } = useMsal();
 
     const handleSubmit = async (event: FormEvent) => {
         event.preventDefault();
         try {
-            if (msalRequired) {
-                const token = await TokenHelper.getAccessTokenUsingMsal(inProgress, instance, authRequirements.scopes!);
-                dispatch(
-                    connectPlugin({
-                        plugin: name,
-                        accessToken: token,
-                        apiProperties: apiPropertiesInput,
-                    }),
-                );
-            } else if (oauthRequired) {
-                // TODO: implement OAuth Flow
-            } else {
-                // Basic Auth or PAT
-                dispatch(
-                    connectPlugin({
-                        plugin: name,
-                        username: username,
-                        password: password,
-                        accessToken: accessToken,
-                        apiProperties: apiPropertiesInput,
-                    }),
-                );
-            }
+            // Basic Auth or PAT
+            dispatch(
+                connectPlugin({
+                    plugin: name,
+                    username: username,
+                    password: password,
+                    accessToken: accessToken,
+                    apiProperties: apiPropertiesInput,
+                }),
+            );
 
             setOpen(false);
         } catch (_e) {
@@ -166,13 +148,6 @@ export const PluginConnector: React.FC<PluginConnectorProps> = ({
                             )}
                             {(usernameRequired || accessTokenRequired) && (
                                 <Body1Strong> Log in to {name} to continue</Body1Strong>
-                            )}
-                            {(msalRequired || oauthRequired) && (
-                                <Body1>
-                                    {' '}
-                                    You will be prompted into sign in with {publisher} on the next screen if you haven't
-                                    already provided prior consent.
-                                </Body1>
                             )}
                             {usernameRequired && (
                                 <>

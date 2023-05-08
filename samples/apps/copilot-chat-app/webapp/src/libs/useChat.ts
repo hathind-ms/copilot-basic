@@ -1,18 +1,14 @@
-import { useAccount, useMsal } from '@azure/msal-react';
 import { Constants } from '../Constants';
 import { useAppDispatch, useAppSelector } from '../redux/app/hooks';
 import { RootState } from '../redux/app/store';
 import { addAlert } from '../redux/features/app/appSlice';
 import { ChatState } from '../redux/features/conversations/ChatState';
-import { Conversations } from '../redux/features/conversations/ConversationsState';
 import {
     addConversation,
     incrementBotProfilePictureIndex,
-    setConversations,
     setSelectedConversation,
     updateConversation,
 } from '../redux/features/conversations/conversationsSlice';
-import { AuthHelper } from './auth/AuthHelper';
 import { useConnectors } from './connectors/useConnectors';
 import { AlertType } from './models/AlertType';
 import { Bot } from './models/Bot';
@@ -25,8 +21,6 @@ import { ChatService } from './services/ChatService';
 
 export const useChat = () => {
     const dispatch = useAppDispatch();
-    const { instance, accounts } = useMsal();
-    const account = useAccount(accounts[0] || {});
     const sk = useSemanticKernel(process.env.REACT_APP_BACKEND_URI as string);
     const { botProfilePictureIndex } = useAppSelector((state: RootState) => state.conversations);
 
@@ -43,10 +37,10 @@ export const useChat = () => {
     ];
 
     const loggedInUser: ChatUser = {
-        id: account?.homeAccountId || '',
-        fullName: account?.name || '',
-        emailAddress: account?.username || '',
-        photo: undefined, // TODO: Make call to Graph /me endpoint to load photo
+        id: Constants.GuestUser.id,
+        fullName: Constants.GuestUser.name,
+        emailAddress: Constants.GuestUser.email,
+        photo: undefined,
         online: true,
         lastTypingTimestamp: 0,
     };
@@ -57,22 +51,12 @@ export const useChat = () => {
     };
 
     const createChat = async () => {
-        const chatTitle = `Copilot @ ${new Date().toLocaleString()}`;
+        const chatTitle = `Copilot`;
         try {
             await chatService
-                .createChatAsync(
-                    account?.homeAccountId!,
-                    account?.name!,
-                    chatTitle,
-                    await AuthHelper.getSKaaSAccessToken(instance),
-                )
+                .createChatAsync('guest-user-id', 'guest-user-name', chatTitle)
                 .then(async (result: IChatSession) => {
-                    const chatMessages = await chatService.getChatMessagesAsync(
-                        result.id,
-                        0,
-                        1,
-                        await AuthHelper.getSKaaSAccessToken(instance),
-                    );
+                    const chatMessages = await chatService.getChatMessagesAsync(result.id, 0, 1);
 
                     const newChat: ChatState = {
                         id: result.id,
@@ -101,11 +85,11 @@ export const useChat = () => {
             variables: [
                 {
                     key: 'userId',
-                    value: account?.homeAccountId!,
+                    value: Constants.GuestUser.id,
                 },
                 {
                     key: 'userName',
-                    value: account?.name!,
+                    value: Constants.GuestUser.name,
                 },
                 {
                     key: 'chatId',
@@ -115,13 +99,7 @@ export const useChat = () => {
         };
 
         try {
-            var result = await sk.invokeAsync(
-                ask,
-                'ChatSkill',
-                'Chat',
-                await AuthHelper.getSKaaSAccessToken(instance),
-                connectors.getEnabledPlugins(),
-            );
+            var result = await sk.invokeAsync(ask, 'ChatSkill', 'Chat', connectors.getEnabledPlugins());
 
             const messageResult = {
                 timestamp: new Date().getTime(),
@@ -140,45 +118,7 @@ export const useChat = () => {
 
     const loadChats = async () => {
         try {
-            const chatSessions = await chatService.getAllChatsAsync(
-                account?.homeAccountId!,
-                await AuthHelper.getSKaaSAccessToken(instance),
-            );
-
-            if (chatSessions.length > 0) {
-                const conversations: Conversations = {};
-                for (const index in chatSessions) {
-                    const chatSession = chatSessions[index];
-                    const chatMessages = await chatService.getChatMessagesAsync(
-                        chatSession.id,
-                        0,
-                        100,
-                        await AuthHelper.getSKaaSAccessToken(instance),
-                    );
-
-                    // Messages are returned with most recent message at index 0 and oldest message at the last index,
-                    // so we need to reverse the order for render
-                    const orderedMessages = chatMessages.reverse();
-
-                    conversations[chatSession.id] = {
-                        id: chatSession.id,
-                        title: chatSession.title,
-                        audience: [loggedInUser],
-                        messages: orderedMessages,
-                        botTypingTimestamp: 0,
-                        botProfilePicture: botProfilePictures[botProfilePictureIndex],
-                    };
-
-                    dispatch(incrementBotProfilePictureIndex());
-                }
-
-                dispatch(setConversations(conversations));
-                dispatch(setSelectedConversation(chatSessions[0].id));
-            } else {
-                // No chats exist, create first chat window
-                await createChat();
-            }
-
+            await createChat();
             return true;
         } catch (e: any) {
             const errorMessage = `Unable to load chats. Details: ${e.message ?? e}`;
@@ -190,11 +130,7 @@ export const useChat = () => {
 
     const downloadBot = async (chatId: string) => {
         try {
-            return botService.downloadAsync(
-                chatId,
-                account?.homeAccountId || '',
-                await AuthHelper.getSKaaSAccessToken(instance),
-            );
+            return botService.downloadAsync(chatId, Constants.GuestUser.id);
         } catch (e: any) {
             const errorMessage = `Unable to download the bot. Details: ${e.message ?? e}`;
             dispatch(addAlert({ message: errorMessage, type: AlertType.Error }));
@@ -203,7 +139,7 @@ export const useChat = () => {
 
     const uploadBot = async (bot: Bot) => {
         botService
-            .uploadAsync(bot, account?.homeAccountId || '', await AuthHelper.getSKaaSAccessToken(instance))
+            .uploadAsync(bot, Constants.GuestUser.id)
             .then(() => loadChats())
             .catch((e: any) => {
                 const errorMessage = `Unable to upload the bot. Details: ${e.message ?? e}`;

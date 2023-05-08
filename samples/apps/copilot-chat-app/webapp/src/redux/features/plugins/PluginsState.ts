@@ -1,20 +1,16 @@
-import { Constants } from '../../../Constants';
 import GithubIcon from '../../../assets/plugin-icons/github.png';
 import JiraIcon from '../../../assets/plugin-icons/jira.png';
-import GraphIcon from '../../../assets/plugin-icons/ms-graph.png';
 
 /*
  * For each OpenAPI Spec you're supporting in the Kernel,
  * add all the relevant information here.
  */
 export const enum Plugins {
-    MsGraph = 'Microsoft Graph',
     Jira = 'Jira',
     GitHub = 'GitHub',
 }
 
 export const enum AuthHeaderTags {
-    MsGraph = 'graph',
     Jira = 'jira',
     GitHub = 'github',
 }
@@ -23,8 +19,6 @@ export type PluginAuthRequirements = {
     username?: boolean;
     password?: boolean;
     personalAccessToken?: boolean;
-    OAuth?: boolean;
-    Msal?: boolean;
     scopes?: string[];
     helpLink?: string;
 };
@@ -54,24 +48,11 @@ export type Plugin = {
 };
 
 export interface PluginsState {
-    MsGraph: Plugin;
     Jira: Plugin;
     GitHub: Plugin;
 }
 
 export const initialState: PluginsState = {
-    MsGraph: {
-        name: Plugins.MsGraph,
-        publisher: 'Microsoft',
-        description: 'Use your Microsoft Account to access your personal Graph information and Microsoft services.',
-        enabled: false,
-        authRequirements: {
-            Msal: true,
-            scopes: Constants.msGraphScopes,
-        },
-        headerTag: AuthHeaderTags.MsGraph,
-        icon: GraphIcon,
-    },
     Jira: {
         name: Plugins.Jira,
         publisher: 'Atlassian',

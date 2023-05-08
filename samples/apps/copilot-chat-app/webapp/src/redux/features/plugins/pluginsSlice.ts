@@ -13,9 +13,6 @@ export const pluginsState = createSlice({
             var authData = action.payload.accessToken;
 
             switch (action.payload.plugin) {
-                case Plugins.MsGraph:
-                    plugin = state.MsGraph;
-                    break;
                 case Plugins.Jira:
                     plugin = state.Jira;
 
@@ -39,9 +36,6 @@ export const pluginsState = createSlice({
             var plugin: Plugin;
 
             switch (action.payload) {
-                case Plugins.MsGraph:
-                    plugin = state.MsGraph;
-                    break;
                 case Plugins.Jira:
                     plugin = state.Jira;
                     break;

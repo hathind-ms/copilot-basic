@@ -1,12 +1,4 @@
 // Copyright (c) Microsoft. All rights reserved.
-
-import {
-    AuthenticatedTemplate,
-    UnauthenticatedTemplate,
-    useAccount,
-    useIsAuthenticated,
-    useMsal,
-} from '@azure/msal-react';
 import { Avatar, Spinner, Subtitle1, makeStyles, shorthands, tokens } from '@fluentui/react-components';
 import { Alert } from '@fluentui/react-components/unstable';
 import { Dismiss16Regular } from '@fluentui/react-icons';
@@ -15,7 +7,6 @@ import { FC, useEffect } from 'react';
 import { PluginGallery } from './components/open-api-plugins/PluginGallery';
 import BackendProbe from './components/views/BackendProbe';
 import { ChatView } from './components/views/ChatView';
-import { Login } from './components/views/Login';
 import { useChat } from './libs/useChat';
 import { useAppDispatch, useAppSelector } from './redux/app/hooks';
 import { RootState } from './redux/app/store';
@@ -66,91 +57,70 @@ const App: FC = () => {
     const { alerts } = useAppSelector((state: RootState) => state.app);
     const dispatch = useAppDispatch();
 
-    const { instance, accounts, inProgress } = useMsal();
-    const account = useAccount(accounts[0] || {});
-    const isAuthenticated = useIsAuthenticated();
-
     const chat = useChat();
 
     useEffect(() => {
-        if (isAuthenticated && account && appState === AppState.LoadingChats) {
-            instance.setActiveAccount(account);
-
-            // Load all chats from memory
-            async function loadChats() {
-                if (await chat.loadChats()) {
-                    setAppState(AppState.Chat);
-                }
+        // Load all chats from memory
+        async function loadChats() {
+            if (await chat.loadChats()) {
+                setAppState(AppState.Chat);
             }
-
-            loadChats();
         }
+
+        loadChats();
         // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [instance, inProgress, isAuthenticated, appState]);
+    }, [appState]);
 
     const onDismissAlert = (key: string) => {
         dispatch(removeAlert(key));
     };
 
-    // TODO: handle error case of missing account information
     return (
-        <div>
-            <UnauthenticatedTemplate>
-                <div className={classes.container}>
-                    <div className={classes.header}>
-                        <Subtitle1 as="h1">Copilot Chat</Subtitle1>
-                    </div>
-                    <Login />
+        <div className={classes.container}>
+            <div className={classes.header}>
+                <Subtitle1 as="h1">Copilot Chat</Subtitle1>
+                <div className={classes.cornerItems}>
+                    <PluginGallery />
+                    <Avatar
+                        className={classes.persona}
+                        key={'Guest'}
+                        name={'Guest'}
+                        size={28}
+                        badge={{ status: 'available' }}
+                    />
                 </div>
-            </UnauthenticatedTemplate>
-            <AuthenticatedTemplate>
-                <div className={classes.container}>
-                    <div className={classes.header}>
-                        <Subtitle1 as="h1">Copilot Chat</Subtitle1>
-                        <div className={classes.cornerItems}>
-                            <PluginGallery />
-                            <Avatar
-                                className={classes.persona}
-                                key={account?.name}
-                                name={account?.name}
-                                size={28}
-                                badge={{ status: 'available' }}
-                            />
-                        </div>
-                    </div>
-                    <div className={classes.content}>
-                        {alerts &&
-                            Object.keys(alerts).map((key) => {
-                                const alert = alerts[key];
-                                return (
-                                    <Alert
-                                        intent={alert.type}
-                                        action={{
-                                            icon: (
-                                                <Dismiss16Regular
-                                                    aria-label="dismiss message"
-                                                    onClick={() => onDismissAlert(key)}
-                                                    color="black"
-                                                />
-                                            ),
-                                        }}
-                                        key={key}
-                                    >
-                                        {alert.message}
-                                    </Alert>
-                                );
-                            })}
-                        {appState === AppState.ProbeForBackend && (
-                            <BackendProbe
-                                uri={process.env.REACT_APP_BACKEND_URI as string}
-                                onBackendFound={() => setAppState(AppState.LoadingChats)}
-                            />
-                        )}
-                        {appState === AppState.LoadingChats && <Spinner labelPosition="below" label="Loading Chats" />}
-                        {appState === AppState.Chat && <ChatView />}
-                    </div>
-                </div>
-            </AuthenticatedTemplate>
+            </div>
+            <div className={classes.content}>
+                {alerts &&
+                    Object.keys(alerts).map((key) => {
+                        const alert = alerts[key];
+                        return (
+                            <Alert
+                                intent={alert.type}
+                                action={{
+                                    icon: (
+                                        <Dismiss16Regular
+                                            aria-label="dismiss message"
+                                            onClick={() => onDismissAlert(key)}
+                                            color="black"
+                                        />
+                                    ),
+                                }}
+                                key={key}
+                            >
+                                {alert.message}
+                            </Alert>
+                        );
+                    })}
+                {appState === AppState.ProbeForBackend && (
+                    <BackendProbe
+                        uri={process.env.REACT_APP_BACKEND_URI as string}
+                        onBackendFound={() => setAppState(AppState.LoadingChats)}
+                    />
+                )}
+                {appState === AppState.LoadingChats && <Spinner labelPosition="below" label="Loading Chats" />}
+                {appState === AppState.Chat && <ChatView />}
+            </div>
         </div>
     );
 };

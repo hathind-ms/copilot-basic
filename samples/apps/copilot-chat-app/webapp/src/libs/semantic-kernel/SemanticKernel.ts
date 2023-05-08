@@ -10,7 +10,6 @@ export class SemanticKernel extends BaseService {
         ask: IAsk,
         skillName: string,
         functionName: string,
-        accessToken: string,
         enabledPlugins?: {
             headerTag: AuthHeaderTags;
             authData: string;
@@ -53,7 +52,6 @@ export class SemanticKernel extends BaseService {
                 method: 'POST',
                 body: ask,
             },
-            accessToken,
             enabledPlugins,
         );
 

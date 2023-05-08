@@ -1,6 +1,5 @@
 // Copyright (c) Microsoft. All rights reserved.
 
-import { useMsal } from '@azure/msal-react';
 import {
     Button,
     Input,
@@ -14,7 +13,6 @@ import {
 } from '@fluentui/react-components';
 import { EditRegular, Save24Regular } from '@fluentui/react-icons';
 import React, { useEffect, useState } from 'react';
-import { AuthHelper } from '../../libs/auth/AuthHelper';
 import { AlertType } from '../../libs/models/AlertType';
 import { ChatService } from '../../libs/services/ChatService';
 import { useAppDispatch, useAppSelector } from '../../redux/app/hooks';
@@ -86,7 +84,6 @@ export const ChatWindow: React.FC = () => {
     const chatName = conversations[selectedId].title;
     const [title, setTitle] = useState<string | undefined>(selectedId ?? undefined);
     const [isEditing, setIsEditing] = useState<boolean>(false);
-    const { instance } = useMsal();
 
     const chatService = new ChatService(process.env.REACT_APP_BACKEND_URI as string);
 
@@ -94,11 +91,7 @@ export const ChatWindow: React.FC = () => {
         if (isEditing) {
             if (chatName !== title) {
                 try {
-                    await chatService.editChatAsync(
-                        conversations[selectedId].id,
-                        title!,
-                        await AuthHelper.getSKaaSAccessToken(instance)
-                    );
+                    await chatService.editChatAsync(conversations[selectedId].id, title!);
 
                     dispatch(editConversationTitle({ id: selectedId ?? '', newTitle: title ?? '' }));
                 } catch (e: any) {

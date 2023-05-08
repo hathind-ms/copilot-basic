@@ -1,27 +1,19 @@
 // Copyright (c) Microsoft. All rights reserved.
 
 export class DocumentImportService {
-    constructor(private readonly serviceUrl: string) { }
+    constructor(private readonly serviceUrl: string) {}
 
-    importDocumentAsync = async (
-        document: File,
-        accessToken: string,
-    ) => {
+    importDocumentAsync = async (document: File) => {
         const formData = new FormData();
         formData.append('formFile', document);
-        
+
         const commandPath = `importDocument`;
         const requestUrl = new URL(commandPath, this.serviceUrl);
-
-        const headers = new Headers({
-            Authorization: `Bearer ${accessToken}`,
-        });
 
         try {
             const response = await fetch(requestUrl, {
                 method: 'POST',
                 body: formData,
-                headers: headers,
             });
 
             if (!response.ok) {

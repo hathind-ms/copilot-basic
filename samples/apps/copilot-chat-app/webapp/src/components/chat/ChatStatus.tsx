@@ -1,6 +1,5 @@
 // Copyright (c) Microsoft. All rights reserved.
 
-import { useAccount, useMsal } from '@azure/msal-react';
 import { Label, makeStyles } from '@fluentui/react-components';
 import React from 'react';
 import { Constants } from '../../Constants';
@@ -20,8 +19,7 @@ const useClasses = makeStyles({
 
 export const ChatStatus: React.FC = () => {
     const classes = useClasses();
-    const { accounts } = useMsal();
-    const account = useAccount(accounts[0] || {});
+
     const { conversations, selectedId } = useAppSelector((state: RootState) => state.conversations);
     const { audience, botTypingTimestamp } = conversations[selectedId];
     const [typing, setTyping] = React.useState<SKBotAudienceMember[]>([]);
@@ -40,7 +38,7 @@ export const ChatStatus: React.FC = () => {
             }
             const typingAudience = audience.filter(
                 (chatUser: ChatUser) =>
-                    chatUser.id !== account?.homeAccountId &&
+                    chatUser.id !== Constants.GuestUser.id &&
                     chatUser.lastTypingTimestamp > Date.now() - timeoutDuration,
             );
             updatedTyping.push(...typingAudience);
@@ -52,7 +50,7 @@ export const ChatStatus: React.FC = () => {
             checkAreTyping();
         }, timeoutDuration + 1000);
         return () => clearTimeout(timer);
-    }, [account?.homeAccountId, audience, botTypingTimestamp]);
+    }, [audience, botTypingTimestamp]);
 
     let message = '';
     switch (typing.length) {

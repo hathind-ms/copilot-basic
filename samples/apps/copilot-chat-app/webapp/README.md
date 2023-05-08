@@ -1,4 +1,4 @@
-# Copilot Chat Web App
+# Copilot Chat Guest Web App
 > This learning sample is for educational purposes only and is not recommended for
 production deployments.
 

@@ -1,13 +1,11 @@
 // Copyright (c) Microsoft. All rights reserved.
 
-import { useMsal } from '@azure/msal-react';
 import { Button, Spinner, Textarea, makeStyles, shorthands, tokens } from '@fluentui/react-components';
 import { AttachRegular, MicRegular, SendRegular } from '@fluentui/react-icons';
 import debug from 'debug';
 import * as speechSdk from 'microsoft-cognitiveservices-speech-sdk';
 import React, { useRef } from 'react';
 import { Constants } from '../../Constants';
-import { AuthHelper } from '../../libs/auth/AuthHelper';
 import { AlertType } from '../../libs/models/AlertType';
 import { useDocumentImportService } from '../../libs/semantic-kernel/useDocumentImport';
 import { useAppDispatch } from '../../redux/app/hooks';
@@ -51,7 +49,7 @@ const useClasses = makeStyles({
     functional: {
         display: 'flex',
         flexDirection: 'row',
-    }
+    },
 });
 
 interface ChatInputProps {
@@ -63,7 +61,6 @@ interface ChatInputProps {
 export const ChatInput: React.FC<ChatInputProps> = (props) => {
     const { isTyping, onSubmit } = props;
     const classes = useClasses();
-    const { instance } = useMsal();
     const dispatch = useAppDispatch();
     const [value, setValue] = React.useState('');
     const [previousValue, setPreviousValue] = React.useState('');
@@ -78,8 +75,7 @@ export const ChatInput: React.FC<ChatInputProps> = (props) => {
         if (recognizer) return;
         void (async () => {
             var response = await speechService.validSpeechKeyAsync();
-            if(response.isSuccess)
-            {
+            if (response.isSuccess) {
                 const newRecognizer = await speechService.getSpeechRecognizerAsyncWithValidKey(response);
                 setRecognizer(newRecognizer);
             }
@@ -108,10 +104,7 @@ export const ChatInput: React.FC<ChatInputProps> = (props) => {
         if (documentFile) {
             try {
                 SetDocumentImporting(true);
-                await documentImportService.importDocumentAsync(
-                    documentFile,
-                    await AuthHelper.getSKaaSAccessToken(instance)
-                );
+                await documentImportService.importDocumentAsync(documentFile);
                 dispatch(addAlert({ message: 'Document uploaded successfully', type: AlertType.Success }));
             } catch (e: any) {
                 const errorMessage = `Failed to upload document. Details: ${e.message ?? e}`;
@@ -182,16 +175,26 @@ export const ChatInput: React.FC<ChatInputProps> = (props) => {
                         type="file"
                         ref={documentFileRef}
                         style={{ display: 'none' }}
-                        accept='.txt,.pdf'
+                        accept=".txt,.pdf"
                         multiple={false}
                         onChange={() => importDocument()}
                     />
-                    <Button disabled={ documentImporting } appearance="transparent" icon={<AttachRegular />} onClick={() => selectDocument()} />
+                    <Button
+                        disabled={documentImporting}
+                        appearance="transparent"
+                        icon={<AttachRegular />}
+                        onClick={() => selectDocument()}
+                    />
                     {documentImporting && <Spinner size="tiny" />}
                 </div>
                 <div className={classes.essentials}>
                     {recognizer && (
-                        <Button appearance="transparent" disabled={isListening} icon={<MicRegular />} onClick={() => handleSpeech()} />
+                        <Button
+                            appearance="transparent"
+                            disabled={isListening}
+                            icon={<MicRegular />}
+                            onClick={() => handleSpeech()}
+                        />
                     )}
                     <Button appearance="transparent" icon={<SendRegular />} onClick={() => handleSubmit(value)} />
                 </div>

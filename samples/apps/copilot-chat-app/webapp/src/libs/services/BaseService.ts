@@ -13,7 +13,6 @@ export class BaseService {
 
     protected readonly getResponseAsync = async <T>(
         request: ServiceRequest,
-        accessToken: string,
         enabledPlugins?: {
             headerTag: AuthHeaderTags;
             authData: string;
@@ -22,7 +21,6 @@ export class BaseService {
     ): Promise<T> => {
         const { commandPath, method, body } = request;
         const headers = new Headers({
-            Authorization: `Bearer ${accessToken}`,
             'Content-Type': 'application/json',
         });
 
