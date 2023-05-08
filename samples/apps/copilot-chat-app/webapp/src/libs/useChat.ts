@@ -9,7 +9,6 @@ import {
     setSelectedConversation,
     updateConversation,
 } from '../redux/features/conversations/conversationsSlice';
-import { useConnectors } from './connectors/useConnectors';
 import { AlertType } from './models/AlertType';
 import { Bot } from './models/Bot';
 import { AuthorRoles } from './models/ChatMessage';
@@ -24,7 +23,6 @@ export const useChat = () => {
     const sk = useSemanticKernel(process.env.REACT_APP_BACKEND_URI as string);
     const { botProfilePictureIndex } = useAppSelector((state: RootState) => state.conversations);
 
-    const connectors = useConnectors();
     const botService = new BotService(process.env.REACT_APP_BACKEND_URI as string);
     const chatService = new ChatService(process.env.REACT_APP_BACKEND_URI as string);
 
@@ -99,7 +97,7 @@ export const useChat = () => {
         };
 
         try {
-            var result = await sk.invokeAsync(ask, 'ChatSkill', 'Chat', connectors.getEnabledPlugins());
+            var result = await sk.invokeAsync(ask, 'ChatSkill', 'Chat');
 
             const messageResult = {
                 timestamp: new Date().getTime(),

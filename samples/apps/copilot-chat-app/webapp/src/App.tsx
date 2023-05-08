@@ -4,7 +4,6 @@ import { Alert } from '@fluentui/react-components/unstable';
 import { Dismiss16Regular } from '@fluentui/react-icons';
 import * as React from 'react';
 import { FC, useEffect } from 'react';
-import { PluginGallery } from './components/open-api-plugins/PluginGallery';
 import BackendProbe from './components/views/BackendProbe';
 import { ChatView } from './components/views/ChatView';
 import { useChat } from './libs/useChat';
@@ -80,7 +79,6 @@ const App: FC = () => {
             <div className={classes.header}>
                 <Subtitle1 as="h1">Copilot Chat</Subtitle1>
                 <div className={classes.cornerItems}>
-                    <PluginGallery />
                     <Avatar
                         className={classes.persona}
                         key={'Guest'}

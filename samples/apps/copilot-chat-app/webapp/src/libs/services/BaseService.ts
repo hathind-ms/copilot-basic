@@ -1,5 +1,3 @@
-import { AdditionalApiProperties, AuthHeaderTags } from '../../redux/features/plugins/PluginsState';
-
 interface ServiceRequest {
     commandPath: string;
     method?: string;
@@ -13,25 +11,11 @@ export class BaseService {
 
     protected readonly getResponseAsync = async <T>(
         request: ServiceRequest,
-        enabledPlugins?: {
-            headerTag: AuthHeaderTags;
-            authData: string;
-            apiProperties?: AdditionalApiProperties;
-        }[],
     ): Promise<T> => {
         const { commandPath, method, body } = request;
         const headers = new Headers({
             'Content-Type': 'application/json',
         });
-
-        // For each enabled plugin, pass its auth information as a customer header
-        // to the backend so the server can authenticate to the plugin
-        if (enabledPlugins && enabledPlugins.length > 0) {
-            for (var idx in enabledPlugins) {
-                var plugin = enabledPlugins[idx];
-                headers.append(`x-sk-copilot-${plugin.headerTag}-auth`, plugin.authData);
-            }
-        }
 
         try {
             const requestUrl = new URL(commandPath, this.serviceUrl);
