@@ -140,7 +140,7 @@ public class ChatSkill
                 SemanticMemoryExtractor.MemoryCollectionName(chatId, memoryName),
                 latestMessage.ToString(),
                 limit: 100,
-                minRelevanceScore: 0.8);
+                minRelevanceScore: this._promptSettings.SemanticMemoryMinRelevance);
             await foreach (var memory in results)
             {
                 relevantMemories.Add(memory);
@@ -418,7 +418,7 @@ public class ChatSkill
             collection: memoryCollectionName,
             query: item.ToFormattedString(),
             limit: 1,
-            minRelevanceScore: 0.8,
+            minRelevanceScore: this._promptSettings.SemanticMemoryMinRelevance,
             cancellationToken: context.CancellationToken
         ).ToEnumerable();
 
