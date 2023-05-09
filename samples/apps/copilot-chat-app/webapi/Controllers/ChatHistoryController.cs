@@ -20,6 +20,7 @@ public class ChatHistoryController : ControllerBase
     private readonly ChatSessionRepository _chatSessionRepository;
     private readonly ChatMessageRepository _chatMessageRepository;
     private readonly PromptSettings _promptSettings;
+    private static readonly string GUEST_CHAT_ID = "461a6d36-967e-40b1-93e1-3830fcd95e6d";
 
     /// <summary>
     /// Initializes a new instance of the <see cref="ChatHistoryController"/> class.
@@ -56,14 +57,22 @@ public class ChatHistoryController : ControllerBase
         var userId = chatParameters.UserId;
         var title = chatParameters.Title;
 
-        var newChat = new ChatSession(userId, title);
-        await this._chatSessionRepository.CreateAsync(newChat);
+        try
+        {
+            var chat = await this._chatSessionRepository.FindByIdAsync(GUEST_CHAT_ID);
+            return this.Ok(chat);
+        }
+        catch (Exception ex)
+        {
+            var newChat = new ChatSession(userId, title, GUEST_CHAT_ID);
+            await this._chatSessionRepository.CreateAsync(newChat);
 
-        var initialBotMessage = this._promptSettings.InitialBotMessage;
-        await this.SaveResponseAsync(initialBotMessage, newChat.Id);
+            var initialBotMessage = this._promptSettings.InitialBotMessage;
+            await this.SaveResponseAsync(initialBotMessage, GUEST_CHAT_ID);
 
-        this._logger.LogDebug("Created chat session with id {0} for user {1}", newChat.Id, userId);
-        return this.CreatedAtAction(nameof(this.GetChatSessionByIdAsync), new { chatId = newChat.Id }, newChat);
+            this._logger.LogDebug("Created chat session with id {0} for user {1}", GUEST_CHAT_ID, userId);
+            return this.CreatedAtAction(nameof(this.GetChatSessionByIdAsync), new { chatId = GUEST_CHAT_ID }, newChat);
+        }
     }
 
     /// <summary>

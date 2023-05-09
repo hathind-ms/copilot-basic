@@ -28,10 +28,11 @@ public class ChatSession : IStorageEntity
     [JsonPropertyName("title")]
     public string Title { get; set; }
 
-    public ChatSession(string userId, string title)
+    public ChatSession(string userId, string title, string id = null)
     {
-        this.Id = Guid.NewGuid().ToString();
         this.UserId = userId;
         this.Title = title;
+    
+        this.Id = string.IsNullOrEmpty(id) ? Guid.NewGuid().ToString() : id;
     }
 }
