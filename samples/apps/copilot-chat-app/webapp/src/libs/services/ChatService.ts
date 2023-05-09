@@ -30,14 +30,6 @@ export class ChatService extends BaseService {
         return result;
     };
 
-    public getAllChatsAsync = async (userId: string): Promise<IChatSession[]> => {
-        const result = await this.getResponseAsync<IChatSession[]>({
-            commandPath: `chatSession/getAllChats/${userId}`,
-            method: 'GET',
-        });
-        return result;
-    };
-
     public getChatMessagesAsync = async (chatId: string, startIdx: number, count: number): Promise<IChatMessage[]> => {
         const result = await this.getResponseAsync<IChatMessage[]>({
             commandPath: `chatSession/getChatMessages/${chatId}?startIdx=${startIdx}&count=${count}`,

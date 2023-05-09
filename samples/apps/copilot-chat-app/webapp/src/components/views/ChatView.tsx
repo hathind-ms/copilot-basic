@@ -1,7 +1,6 @@
 import { makeStyles } from '@fluentui/react-components';
 import { FC } from 'react';
 import { ChatWindow } from '../chat/ChatWindow';
-import { ChatList } from '../chat/chat-list/ChatList';
 
 const useClasses = makeStyles({
     container: {
@@ -21,7 +20,6 @@ export const ChatView: FC = () => {
 
     return (
         <div className={classes.container}>
-            <ChatList />
             <ChatWindow />
         </div>
     );
