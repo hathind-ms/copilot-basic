@@ -37,22 +37,6 @@ internal static class SemanticKernelExtensions
         // Add the semantic memory with backing memory store.
         services.AddSingleton<ISemanticTextMemory>(CreateSemanticTextMemory);
 
-        // Add the planner.
-        services.AddScoped<CopilotChatPlanner>(sp =>
-        {
-            // Create a kernel for the planner with the same contexts as the chat's kernel except with no skills and its own completion backend.
-            // This allows the planner to use only the skills that are available at call time.
-            IKernel chatKernel = sp.GetRequiredService<IKernel>();
-            IOptions<PlannerOptions> plannerOptions = sp.GetRequiredService<IOptions<PlannerOptions>>();
-            IKernel plannerKernel = new Kernel(
-                new SkillCollection(),
-                chatKernel.PromptTemplateEngine,
-                chatKernel.Memory,
-                new KernelConfig().AddCompletionBackend(plannerOptions.Value.AIService!),
-                sp.GetRequiredService<ILogger<CopilotChatPlanner>>());
-            return new CopilotChatPlanner(plannerKernel, plannerOptions);
-        });
-
         // Add the Semantic Kernel
         services.AddSingleton<IPromptTemplateEngine, PromptTemplateEngine>();
         services.AddScoped<ISkillCollection, SkillCollection>();

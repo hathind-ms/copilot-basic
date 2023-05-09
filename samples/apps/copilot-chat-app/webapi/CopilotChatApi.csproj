@@ -39,4 +39,8 @@
     <ProjectReference Include="..\..\..\..\dotnet\src\Skills\Skills.Web\Skills.Web.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <_ContentIncludedByDefault Remove="Skills\OpenApiSkills\GitHubSkill\openapi.json" />
+  </ItemGroup>
+
 </Project>

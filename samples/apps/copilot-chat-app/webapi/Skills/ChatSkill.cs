@@ -10,9 +10,7 @@ using Microsoft.SemanticKernel.Memory;
 using Microsoft.SemanticKernel.Orchestration;
 using Microsoft.SemanticKernel.Planning;
 using Microsoft.SemanticKernel.SkillDefinition;
-using SemanticKernel.Service.Config;
 using SemanticKernel.Service.Model;
-using SemanticKernel.Service.Skills.OpenApiSkills.GitHubSkill.Model;
 using SemanticKernel.Service.Storage;
 
 namespace SemanticKernel.Service.Skills;
@@ -50,16 +48,6 @@ public class ChatSkill
     private readonly PromptSettings _promptSettings;
 
     /// <summary>
-    /// CopilotChat's planner to gather additional information for the chat context.
-    /// </summary>
-    private readonly CopilotChatPlanner _planner;
-
-    /// <summary>
-    /// Options for the planner.
-    /// </summary>
-    private readonly PlannerOptions _plannerOptions;
-
-    /// <summary>
     /// Create a new instance of <see cref="ChatSkill"/>.
     /// </summary>
     public ChatSkill(
@@ -67,8 +55,6 @@ public class ChatSkill
         ChatMessageRepository chatMessageRepository,
         ChatSessionRepository chatSessionRepository,
         PromptSettings promptSettings,
-        CopilotChatPlanner planner,
-        PlannerOptions plannerOptions,
         ILogger logger)
     {
         this._logger = logger;
@@ -76,8 +62,6 @@ public class ChatSkill
         this._chatMessageRepository = chatMessageRepository;
         this._chatSessionRepository = chatSessionRepository;
         this._promptSettings = promptSettings;
-        this._planner = planner;
-        this._plannerOptions = plannerOptions;
     }
 
     /// <summary>
@@ -186,58 +170,6 @@ public class ChatSkill
         context.Variables.Set("tokenLimit", tokenLimit.ToString(new NumberFormatInfo()));
 
         return memoryText;
-    }
-
-    /// <summary>
-    /// Extract relevant additional knowledge using a planner.
-    /// </summary>
-    [SKFunction("Acquire external information")]
-    [SKFunctionName("AcquireExternalInformation")]
-    [SKFunctionContextParameter(Name = "userIntent", Description = "The intent of the user.")]
-    [SKFunctionContextParameter(Name = "tokenLimit", Description = "Maximum number of tokens")]
-    public async Task<string> AcquireExternalInformationAsync(SKContext context)
-    {
-        if (!this._plannerOptions.Enabled)
-        {
-            return string.Empty;
-        }
-
-        // Skills run in the planner may modify the SKContext. Clone the context to avoid
-        // modifying the original context variables.
-        SKContext plannerContext = Utilities.CopyContextWithVariablesClone(context);
-
-        // Use the user intent message as the input to the plan.
-        plannerContext.Variables.Update(plannerContext["userIntent"]);
-
-        // Create a plan and run it.
-        Plan plan = await this._planner.CreatePlanAsync(plannerContext.Variables.Input);
-        if (plan.Steps.Count > 0)
-        {
-            SKContext planContext = await plan.InvokeAsync(plannerContext);
-            int tokenLimit = int.Parse(context["tokenLimit"], new NumberFormatInfo());
-
-            // The result of the plan may be from an OpenAPI skill. Attempt to extract JSON from the response.
-            if (!this.TryExtractJsonFromOpenApiPlanResult(planContext.Variables.Input, out string planResult))
-            {
-                // If not, use result of the plan execution result directly.
-                planResult = planContext.Variables.Input;
-            }
-            else
-            {
-                int relatedInformationTokenLimit = (int)Math.Floor(tokenLimit * this._promptSettings.RelatedInformationContextWeight);
-                planResult = this.OptimizeOpenApiSkillJson(planResult, relatedInformationTokenLimit, plan);
-            }
-
-            string informationText = $"[START RELATED INFORMATION]\n{planResult.Trim()}\n[END RELATED INFORMATION]\n";
-
-            // Adjust the token limit using the number of tokens in the information text.
-            tokenLimit -= Utilities.TokenCount(informationText);
-            context.Variables.Set("tokenLimit", tokenLimit.ToString(new NumberFormatInfo()));
-
-            return informationText;
-        }
-
-        return string.Empty;
     }
 
     /// <summary>
@@ -407,83 +339,6 @@ public class ChatSkill
 
         json = string.Empty;
         return false;
-    }
-
-    /// <summary>
-    /// Try to optimize json from the planner response
-    /// based on token limit
-    /// </summary>
-    private string OptimizeOpenApiSkillJson(string jsonContent, int tokenLimit, Plan plan)
-    {
-        int jsonTokenLimit = (int)(tokenLimit * this._promptSettings.RelatedInformationContextWeight);
-
-        // Remove all new line characters + leading and trailing white space
-        jsonContent = Regex.Replace(jsonContent.Trim(), @"[\n\r]", string.Empty);
-        var document = JsonDocument.Parse(jsonContent);
-        string lastSkillInvoked = plan.Steps[^1].SkillName;
-
-        // Check if the last skill invoked was GitHubSkill and deserialize the JSON content accordingly
-        if (string.Equals(lastSkillInvoked, "GitHubSkill", StringComparison.Ordinal))
-        {
-            var pullRequestType = document.RootElement.ValueKind == JsonValueKind.Array ? typeof(PullRequest[]) : typeof(PullRequest);
-
-            // Deserializing limits the json content to only the fields defined in the GitHubSkill/Model classes
-            var pullRequest = JsonSerializer.Deserialize(jsonContent, pullRequestType);
-            jsonContent = pullRequest != null ? JsonSerializer.Serialize(pullRequest) : string.Empty;
-            document = JsonDocument.Parse(jsonContent);
-        }
-
-        int jsonContentTokenCount = Utilities.TokenCount(jsonContent);
-
-        // Return the JSON content if it does not exceed the token limit
-        if (jsonContentTokenCount < jsonTokenLimit)
-        {
-            return jsonContent;
-        }
-
-        List<object> itemList = new();
-
-        // Summary (List) Object
-        if (document.RootElement.ValueKind == JsonValueKind.Array)
-        {
-            foreach (JsonElement item in document.RootElement.EnumerateArray())
-            {
-                int itemTokenCount = Utilities.TokenCount(item.ToString());
-
-                if (jsonTokenLimit - itemTokenCount > 0)
-                {
-                    itemList.Add(item);
-                    jsonTokenLimit -= itemTokenCount;
-                }
-                else
-                {
-                    break;
-                }
-            }
-        }
-
-        // Detail Object
-        if (document.RootElement.ValueKind == JsonValueKind.Object)
-        {
-            foreach (JsonProperty property in document.RootElement.EnumerateObject())
-            {
-                int propertyTokenCount = Utilities.TokenCount(property.ToString());
-
-                if (jsonTokenLimit - propertyTokenCount > 0)
-                {
-                    itemList.Add(property);
-                    jsonTokenLimit -= propertyTokenCount;
-                }
-                else
-                {
-                    break;
-                }
-            }
-        }
-
-        return itemList.Count > 0
-            ? JsonSerializer.Serialize(itemList)
-            : string.Format(CultureInfo.InvariantCulture, "JSON response for {0} is too large to be consumed at this time.", lastSkillInvoked);
     }
 
     /// <summary>

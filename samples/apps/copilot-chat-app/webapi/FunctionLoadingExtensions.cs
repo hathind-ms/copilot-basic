@@ -42,8 +42,6 @@ internal static class FunctionLoadingExtensions
         ChatSessionRepository chatSessionRepository,
         ChatMessageRepository chatMessageRepository,
         PromptSettings promptSettings,
-        CopilotChatPlanner planner,
-        PlannerOptions plannerOptions,
         DocumentMemoryOptions documentMemoryOptions,
         ILogger logger)
     {
@@ -57,8 +55,6 @@ internal static class FunctionLoadingExtensions
             chatMessageRepository: chatMessageRepository,
             chatSessionRepository: chatSessionRepository,
             promptSettings: promptSettings,
-            planner: planner,
-            plannerOptions: plannerOptions,
             logger: logger
         );
         kernel.ImportSkill(chatSkill, nameof(ChatSkill));
