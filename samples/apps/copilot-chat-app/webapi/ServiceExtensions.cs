@@ -47,18 +47,6 @@ internal static class ServicesExtensions
             .ValidateOnStart()
             .PostConfigure(TrimStringProperties);
 
-        // Azure speech token configuration
-        services.AddOptions<AzureSpeechOptions>()
-            .Bind(configuration.GetSection(AzureSpeechOptions.PropertyName))
-            .ValidateOnStart()
-            .PostConfigure(TrimStringProperties);
-
-        // Bot schema configuration
-        services.AddOptions<BotSchemaOptions>()
-            .Bind(configuration.GetSection(BotSchemaOptions.PropertyName))
-            .ValidateOnStart()
-            .PostConfigure(TrimStringProperties);
-
         // Document memory options
         services.AddOptions<DocumentMemoryOptions>()
             .Bind(configuration.GetSection(DocumentMemoryOptions.PropertyName))

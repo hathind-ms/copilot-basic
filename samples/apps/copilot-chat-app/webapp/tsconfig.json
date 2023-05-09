@@ -29,7 +29,7 @@
         "isolatedModules": true,
         "noEmit": true,
         "jsx": "react-jsx",
-        "types": [],
+        "types": ["node"],
         "composite": true
     },
     "include": ["src", "src/assets/custom.d.ts"]
