@@ -72,7 +72,8 @@ const useClasses = makeStyles({
         justifyContent: 'center',
     },
     contentInner: {
-        width: '100%',
+        maxWidth: '1000px',
+        width: '100%'
     },
 });
 

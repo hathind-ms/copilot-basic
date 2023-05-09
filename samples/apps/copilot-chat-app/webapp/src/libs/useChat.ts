@@ -49,7 +49,7 @@ export const useChat = () => {
         const chatTitle = `Copilot`;
         try {
             await chatService
-                .createChatAsync('guest-user-id', 'guest-user-name', chatTitle)
+                .createChatAsync(Constants.GuestUser.id, Constants.GuestUser.name, chatTitle)
                 .then(async (result: IChatSession) => {
                     const chatMessages = await chatService.getChatMessagesAsync(result.id, 0, 1);
 

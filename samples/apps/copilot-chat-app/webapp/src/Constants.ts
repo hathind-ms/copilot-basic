@@ -15,7 +15,6 @@ export const Constants = {
             emailAddress: '',
             photo: '/assets/bot-icon-1.png',
         },
-        fileExtension: 'skcb',
         typingIndicatorTimeoutMs: 5000,
     },
     debug: {

@@ -10,6 +10,7 @@ import { useChat } from './libs/useChat';
 import { useAppDispatch, useAppSelector } from './redux/app/hooks';
 import { RootState } from './redux/app/store';
 import { removeAlert } from './redux/features/app/appSlice';
+import { Constants } from './Constants';
 
 const useClasses = makeStyles({
     container: {
@@ -81,8 +82,8 @@ const App: FC = () => {
                 <div className={classes.cornerItems}>
                     <Avatar
                         className={classes.persona}
-                        key={'Guest'}
-                        name={'Guest'}
+                        key={Constants.GuestUser.id}
+                        name={Constants.GuestUser.name}
                         size={28}
                         badge={{ status: 'available' }}
                     />
