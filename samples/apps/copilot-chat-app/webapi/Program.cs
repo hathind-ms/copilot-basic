@@ -34,7 +34,7 @@ public sealed class Program
         builder.Services
             .AddApplicationInsightsTelemetry()
             .AddLogging(logBuilder => logBuilder.AddApplicationInsights())
-            .AddAuthorization(builder.Configuration)
+            //.AddAuthorization(builder.Configuration)
             .AddEndpointsApiExplorer()
             .AddSwaggerGen()
             .AddCors()
@@ -44,7 +44,7 @@ public sealed class Program
         WebApplication app = builder.Build();
         app.UseCors();
         app.UseAuthentication();
-        app.UseAuthorization();
+        //app.UseAuthorization();
         app.MapControllers();
 
         // Enable Swagger for development environments.

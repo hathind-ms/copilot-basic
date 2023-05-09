@@ -14,7 +14,6 @@ namespace SemanticKernel.Service.Controllers;
 /// retrieving chat messages, and editing chat sessions.
 /// </summary>
 [ApiController]
-[Authorize]
 public class ChatHistoryController : ControllerBase
 {
     private readonly ILogger<ChatHistoryController> _logger;
