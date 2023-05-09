@@ -67,7 +67,7 @@ public class DocumentMemorySkill
                 documentCollection,
                 query,
                 limit: 100,
-                minRelevanceScore: this._promptSettings.DocumentMemoryMinRelevance);
+                minRelevanceScore: 0.8);
             await foreach (var memory in results)
             {
                 relevantMemories.Add(memory);
