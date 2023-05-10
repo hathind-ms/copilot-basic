@@ -41,8 +41,6 @@ export const conversationsSlice = createSlice({
 });
 
 export const {
-    incrementBotProfilePictureIndex,
-    setConversations,
     editConversationTitle,
     setSelectedConversation,
     addConversation,

@@ -60,7 +60,6 @@ const App: FC = () => {
     const chat = useChat();
 
     useEffect(() => {
-        // Load all chats from memory
         async function loadChats() {
             if (await chat.loadChats()) {
                 setAppState(AppState.Chat);
