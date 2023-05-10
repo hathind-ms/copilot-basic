@@ -32,17 +32,6 @@ internal static class ConfigExtensions
                 assembly: Assembly.GetExecutingAssembly(),
                 optional: true,
                 reloadOnChange: true);
-
-            // For settings from Key Vault, see https://learn.microsoft.com/en-us/aspnet/core/security/key-vault-configuration?view=aspnetcore-8.0
-            string? keyVaultUri = builderContext.Configuration["KeyVaultUri"];
-            if (!string.IsNullOrWhiteSpace(keyVaultUri))
-            {
-                configBuilder.AddAzureKeyVault(
-                    new Uri(keyVaultUri),
-                    new DefaultAzureCredential());
-
-                // for more information on how to use DefaultAzureCredential, see https://learn.microsoft.com/en-us/dotnet/api/azure.identity.defaultazurecredential?view=azure-dotnet
-            }
         });
 
         return host;

@@ -4,7 +4,6 @@ import { addAlert } from '../redux/features/app/appSlice';
 import { ChatState } from '../redux/features/conversations/ChatState';
 import {
     addConversation,
-    incrementBotProfilePictureIndex,
     setSelectedConversation,
     updateConversation,
 } from '../redux/features/conversations/conversationsSlice';
@@ -52,10 +51,9 @@ export const useChat = () => {
                         messages: orderedMessages,
                         audience: [loggedInUser],
                         botTypingTimestamp: 0,
-                        botProfilePicture: '/assets/bot-icon-1.png',
+                        botProfilePicture: '/assets/bot-icon.png',
                     };
 
-                    dispatch(incrementBotProfilePictureIndex());
                     dispatch(addConversation(newChat));
                     dispatch(setSelectedConversation(newChat.id));
 

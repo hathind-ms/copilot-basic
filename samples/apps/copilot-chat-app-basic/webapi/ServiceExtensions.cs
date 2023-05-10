@@ -15,12 +15,6 @@ internal static class ServicesExtensions
     /// </summary>
     internal static IServiceCollection AddOptions(this IServiceCollection services, ConfigurationManager configuration)
     {
-        // General  configuration
-        services.AddOptions<ServiceOptions>()
-            .Bind(configuration.GetSection(ServiceOptions.PropertyName))
-            .ValidateOnStart()
-            .PostConfigure(TrimStringProperties);
-
         // AI service configurations
         services.AddOptions<AIServiceOptions>(AIServiceOptions.CompletionPropertyName)
             .Bind(configuration.GetSection(AIServiceOptions.CompletionPropertyName))
