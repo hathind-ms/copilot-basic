@@ -13,7 +13,7 @@ export const Constants = {
             id: 'bot',
             fullName: 'Copilot',
             emailAddress: '',
-            photo: '/assets/bot-icon-1.png',
+            photo: '/assets/bot-icon.png',
         },
         typingIndicatorTimeoutMs: 5000,
     },
