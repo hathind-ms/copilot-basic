@@ -20,7 +20,10 @@ Before you get started, make sure you have the following requirements in place:
 - [Visual Studio Code](https://code.visualstudio.com/Download) **(Optional)** 
 - [Azure OpenAI](https://aka.ms/oai/access) resource or an account with [OpenAI](https://platform.openai.com).
 
-# Start the WebApi Backend Server
+Or try the installation scripts from here: [Install-Requirements](scripts/Install-Requirements.ps1)
+# Start the app
+You can run the app by running start scripts [Start.ps1](scripts/Start.ps1) or [Start.sh](scripts/Start.sh), or alternatively you can follow steps below to start webapi and webapp separately:
+## Step-by-step instructions to run the webapi and webapp:
 The sample uses two applications, a front-end web UI, and a back-end API server.
 First, let’s set up and verify the back-end API server is running.
 
@@ -40,22 +43,12 @@ First, let’s set up and verify the back-end API server is running.
        cd semantic-kernel/samples/apps/copilot-chat-app/webapi
        dotnet user-secrets set "Completion:Key" "MY_AZUREOPENAI_OR_OPENAI_KEY"
        dotnet user-secrets set "Embedding:Key" "MY_AZUREOPENAI_OR_OPENAI_KEY"
-       dotnet user-secrets set "Planner:AIService:Key" "MY_AZUREOPENAI_OR_OPENAI_KEY"
        ```
      - Update `DeploymentOrModelID` to the Azure OpenAI deployment or OpenAI models you want to use. 
        - For `Completion` and `Planner:AIService`, CopilotChat is optimized for Chat completion models, such as gpt-3.5-turbo and gpt-4.
          > **Important:** gpt-3.5-turbo is normally labelled as "`gpt-35-turbo`" (no period) in Azure OpenAI and "`gpt-3.5-turbo`" (with a period) in OpenAI.
-       - For `Embedding`, `text-embedding-ada-002` is sufficient and cost-effect for generating embeddings.
-   
-   - **(Optional)** To enable speech-to-text for chat input, update the `AzureSpeech` configuration section:
-     > If you have not already, you will need to [create an Azure Speech resource](https://ms.portal.azure.com/#create/Microsoft.CognitiveServicesSpeechServices) 
-       (see [./webapi/appsettings.json](webapi/appsettings.json) for more details).
-     - Update `Region` to whichever region is appropriate for your speech sdk instance.
-     - Set your Azure speech key by opening a terminal in the webapi project directory and setting
-       a dotnet user-secrets value for `AzureSpeech:Key`
-       ```bash
-       dotnet user-secrets set "AzureSpeech:Key" "MY_AZURE_SPEECH_KEY" 
-       ```
+       - For `Embedding`, `text-embedding-ada-002` is sufficient and cost-effect for generating embeddings.   
+
 
 1. Build and run the back-end API server
     1. Open a terminal and navigate to `samples/apps/copilot-chat-app/webapi`
@@ -72,21 +65,6 @@ First, let’s set up and verify the back-end API server is running.
       > You may also need to acknowledge the Windows Defender Firewall, and allow the app to communicate over private or public networks as appropriate.
  
 1. Build and start the front-end application
-   1. You will also need an Azure Active Directory (AAD) application registration. 
-      > For more details on creating an application registration, go [here](https://learn.microsoft.com/en-us/azure/active-directory/develop/quickstart-register-app).
-      - Select `Single-page application (SPA)` as platform type, and set the Web redirect URI to `https://localhost:3000`
-      - Select `Accounts in any organizational directory and personal Microsoft Accounts` as supported account types for this sample.
-      - Make a note of the `Application (client) ID` from the Azure Portal, we will use of it later.
-
-   1. Open a terminal and navigate to `samples/apps/copilot-chat-app/webapp` Copy `env.example` into a new 
-      file `.env` and update the `REACT_APP_AAD_CLIENT_ID` with the AAD application (Client) ID created above.
-      For example:
-      ```bash
-      REACT_APP_BACKEND_URI=https://localhost:40443/
-      REACT_APP_AAD_CLIENT_ID=00000000-0000-0000-0000-000000000000
-      REACT_APP_AAD_AUTHORITY=https://login.microsoftonline.com/common
-      ```
-   
    1. To build and run the front-end application
       ```bash
       yarn install
@@ -95,12 +73,6 @@ First, let’s set up and verify the back-end API server is running.
    
    1. With the back end and front end running, your web browser should automatically launch and navigate to `http://localhost:3000`
       > The first time running the front-end application may take a minute or so to start.
-   
-   1. Sign in with a Microsoft personal account or a "Work or School" account. 
-   
-   1. Consent permission for the application to read your profile information (i.e., your name).
-    
-    If you you experience any errors or issues, consult the troubleshooting section below.
 
 1. Have fun! 
    > **Note:** Each chat interaction will call Azure OpenAI/OpenAI which will use tokens that you may be billed for.
