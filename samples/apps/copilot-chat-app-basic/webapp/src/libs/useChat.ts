@@ -1,6 +1,5 @@
 import { Constants } from '../Constants';
-import { useAppDispatch, useAppSelector } from '../redux/app/hooks';
-import { RootState } from '../redux/app/store';
+import { useAppDispatch } from '../redux/app/hooks';
 import { addAlert } from '../redux/features/app/appSlice';
 import { ChatState } from '../redux/features/conversations/ChatState';
 import {
@@ -19,17 +18,8 @@ import { ChatService } from './services/ChatService';
 export const useChat = () => {
     const dispatch = useAppDispatch();
     const sk = useSemanticKernel(process.env.REACT_APP_BACKEND_URI as string);
-    const { botProfilePictureIndex } = useAppSelector((state: RootState) => state.conversations);
 
     const chatService = new ChatService(process.env.REACT_APP_BACKEND_URI as string);
-
-    const botProfilePictures: string[] = [
-        '/assets/bot-icon-1.png',
-        '/assets/bot-icon-2.png',
-        '/assets/bot-icon-3.png',
-        '/assets/bot-icon-4.png',
-        '/assets/bot-icon-5.png',
-    ];
 
     const loggedInUser: ChatUser = {
         id: Constants.GuestUser.id,
@@ -51,15 +41,18 @@ export const useChat = () => {
             await chatService
                 .createChatAsync(Constants.GuestUser.id, Constants.GuestUser.name, chatTitle)
                 .then(async (result: IChatSession) => {
-                    const chatMessages = await chatService.getChatMessagesAsync(result.id, 0, 1);
+                    const chatMessages = await chatService.getChatMessagesAsync(result.id, 0, 100);
+                    // Messages are returned with most recent message at index 0 and oldest message at the last index,
+                    // so we need to reverse the order for render
+                    const orderedMessages = chatMessages.reverse();
 
                     const newChat: ChatState = {
                         id: result.id,
                         title: result.title,
-                        messages: chatMessages,
+                        messages: orderedMessages,
                         audience: [loggedInUser],
                         botTypingTimestamp: 0,
-                        botProfilePicture: botProfilePictures.at(botProfilePictureIndex) ?? '/assets/bot-icon-1.png',
+                        botProfilePicture: '/assets/bot-icon-1.png',
                     };
 
                     dispatch(incrementBotProfilePictureIndex());

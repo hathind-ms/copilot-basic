@@ -96,30 +96,6 @@ public class ChatHistoryController : ControllerBase
     }
 
     /// <summary>
-    /// Get all chat sessions associated with a user. Return an empty list if no chats are found.
-    /// The regex pattern that is used to match the user id will match the following format:
-    ///    - 2 period separated groups of one or more hyphen-delimited alphanumeric strings.
-    /// The pattern matches two GUIDs in canonical textual representation separated by a period.
-    /// </summary>
-    /// <param name="userId">The user id.</param>
-    [HttpGet]
-    [Route("chatSession/getAllChats/{userId:regex(([[a-z0-9]]+-)+[[a-z0-9]]+\\.([[a-z0-9]]+-)+[[a-z0-9]]+)}")]
-    [ProducesResponseType(StatusCodes.Status200OK)]
-    [ProducesResponseType(StatusCodes.Status400BadRequest)]
-    [ProducesResponseType(StatusCodes.Status404NotFound)]
-    public async Task<IActionResult> GetAllChatSessionsAsync(string userId)
-    {
-        var chats = await this._chatSessionRepository.FindByUserIdAsync(userId);
-        if (chats == null)
-        {
-            // Return an empty list if no chats are found
-            return this.Ok(new List<ChatSession>());
-        }
-
-        return this.Ok(chats);
-    }
-
-    /// <summary>
     /// Get all chat messages for a chat session.
     /// The list will be ordered with the first entry being the most recent message.
     /// </summary>
