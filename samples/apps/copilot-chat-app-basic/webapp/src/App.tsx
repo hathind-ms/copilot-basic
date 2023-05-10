@@ -82,8 +82,8 @@ const App: FC = () => {
                 <div className={classes.cornerItems}>
                     <Avatar
                         className={classes.persona}
-                        key={Constants.GuestUser.id}
-                        name={Constants.GuestUser.name}
+                        key={Constants.guestUser.id}
+                        name={Constants.guestUser.name}
                         size={28}
                         badge={{ status: 'available' }}
                     />
@@ -113,7 +113,7 @@ const App: FC = () => {
                     })}
                 {appState === AppState.ProbeForBackend && (
                     <BackendProbe
-                        uri={process.env.REACT_APP_BACKEND_URI as string}
+                        uri={Constants.backendUrl as string}
                         onBackendFound={() => setAppState(AppState.LoadingChats)}
                     />
                 )}

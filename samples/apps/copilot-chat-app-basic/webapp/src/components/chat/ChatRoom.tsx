@@ -80,8 +80,8 @@ export const ChatRoom: React.FC = () => {
         log('submitting user chat message');
         const chatInput = {
             timestamp: new Date().getTime(),
-            userId: Constants.GuestUser.id,
-            userName: Constants.GuestUser.name,
+            userId: Constants.guestUser.id,
+            userName: Constants.guestUser.name,
             content: value,
             authorRole: AuthorRoles.User,
         };

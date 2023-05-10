@@ -38,7 +38,7 @@ export const ChatStatus: React.FC = () => {
             }
             const typingAudience = audience.filter(
                 (chatUser: ChatUser) =>
-                    chatUser.id !== Constants.GuestUser.id &&
+                    chatUser.id !== Constants.guestUser.id &&
                     chatUser.lastTypingTimestamp > Date.now() - timeoutDuration,
             );
             updatedTyping.push(...typingAudience);

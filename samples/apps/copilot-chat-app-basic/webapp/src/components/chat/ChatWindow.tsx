@@ -20,6 +20,7 @@ import { RootState } from '../../redux/app/store';
 import { addAlert } from '../../redux/features/app/appSlice';
 import { editConversationTitle } from '../../redux/features/conversations/conversationsSlice';
 import { ChatRoom } from './ChatRoom';
+import {Constants} from "../../Constants";
 
 const useClasses = makeStyles({
     root: {
@@ -85,7 +86,7 @@ export const ChatWindow: React.FC = () => {
     const [title, setTitle] = useState<string | undefined>(selectedId ?? undefined);
     const [isEditing, setIsEditing] = useState<boolean>(false);
 
-    const chatService = new ChatService(process.env.REACT_APP_BACKEND_URI as string);
+    const chatService = new ChatService(Constants.backendUrl as string);
 
     const onEdit = async () => {
         if (isEditing) {

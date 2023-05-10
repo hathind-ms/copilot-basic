@@ -1,5 +1,6 @@
 export const Constants = {
-    GuestUser: {
+    backendUrl: process.env.REACT_APP_BACKEND_URI ?? 'https://localhost:40443/',
+    guestUser: {
         id: 'guest-user-id',
         name: 'guest-user-name',
         email: 'guest-user-email',

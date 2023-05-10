@@ -17,14 +17,14 @@ import { ChatService } from './services/ChatService';
 
 export const useChat = () => {
     const dispatch = useAppDispatch();
-    const sk = useSemanticKernel(process.env.REACT_APP_BACKEND_URI as string);
+    const sk = useSemanticKernel(Constants.backendUrl as string);
 
-    const chatService = new ChatService(process.env.REACT_APP_BACKEND_URI as string);
+    const chatService = new ChatService(Constants.backendUrl as string);
 
     const loggedInUser: ChatUser = {
-        id: Constants.GuestUser.id,
-        fullName: Constants.GuestUser.name,
-        emailAddress: Constants.GuestUser.email,
+        id: Constants.guestUser.id,
+        fullName: Constants.guestUser.name,
+        emailAddress: Constants.guestUser.email,
         photo: undefined,
         online: true,
         lastTypingTimestamp: 0,
@@ -39,7 +39,7 @@ export const useChat = () => {
         const chatTitle = `Copilot`;
         try {
             await chatService
-                .createChatAsync(Constants.GuestUser.id, Constants.GuestUser.name, chatTitle)
+                .createChatAsync(Constants.guestUser.id, Constants.guestUser.name, chatTitle)
                 .then(async (result: IChatSession) => {
                     const chatMessages = await chatService.getChatMessagesAsync(result.id, 0, 100);
                     // Messages are returned with most recent message at index 0 and oldest message at the last index,
@@ -73,11 +73,11 @@ export const useChat = () => {
             variables: [
                 {
                     key: 'userId',
-                    value: Constants.GuestUser.id,
+                    value: Constants.guestUser.id,
                 },
                 {
                     key: 'userName',
-                    value: Constants.GuestUser.name,
+                    value: Constants.guestUser.name,
                 },
                 {
                     key: 'chatId',
